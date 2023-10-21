@@ -9,9 +9,9 @@ spec:
   project: default
   source:
     # path: argocd-apps/nginx-gateway-api/helm/nginx-gateway-fabric
-    repoURL: https://ghcr.io/nginxinc/charts/nginx-gateway-fabric:0.0.0-edge
+    repoURL: https://ghcr.io/nginxinc/charts/nginx-gateway-fabric
     chart: nginx-gateway-fabric
-    targetRevision: HEAD
+    targetRevision: '0.0.0-edge'
     helm:
       parameters:
         - name: installCRDs
