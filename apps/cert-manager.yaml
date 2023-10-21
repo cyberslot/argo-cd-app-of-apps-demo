@@ -15,8 +15,8 @@ spec:
       parameters:
         - name: installCRDs
           value: 'true'
-        - name: extraArgs={--feature-gates=ExperimentalGatewayAPISupport}
-          value: 'true'
+        - name: extraArgs={--feature-gates=ExperimentalGatewayAPISupport=true}
+          # value: 'true'
   destination:
     namespace: cert-manager
     name: in-cluster
