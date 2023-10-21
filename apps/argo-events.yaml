@@ -16,7 +16,7 @@ spec:
       repoURL: https://github.com/cyberslot/argo-cd-app-of-apps-demo.git
   destination:
     namespace: argo-events
-    server: in-cluster
+    server: https://kubernetes.default.svc
   syncPolicy:
     automated:
       selfHeal: true
