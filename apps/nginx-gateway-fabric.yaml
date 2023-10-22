@@ -20,7 +20,9 @@ spec:
     namespace: nginx-gateway
     name: in-cluster
   syncPolicy:
-    automated: {}
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
