@@ -7,7 +7,7 @@ spec:
     name: in-cluster
     namespace: argocd
   source:
-    path: apps
+    path: ../apps
     repoURL: 'https://github.com/cyberslot/argo-cd-app-of-apps-demo'
     targetRevision: HEAD
   project: default
