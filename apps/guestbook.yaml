@@ -9,6 +9,8 @@ spec:
   destination:
     namespace: guestbook
     name: in-cluster
+    # name: cp-nat-cluster-second
+    # server: https://connectgateway.googleapis.com/v1beta1/projects//locations/global/gkeMemberships/cp-nat-cluster-second
   project: default
   source:
     path: general/helm-guestbook
@@ -20,3 +22,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      # - ServerSideApply=true
