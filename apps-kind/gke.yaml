@@ -1,22 +1,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nginx-gateway-fabric
+  name: gke
   namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
-    path: deploy/helm-chart
-    repoURL: https://github.com/nginxinc/nginx-gateway-fabric.git
+    path: crossplane
+    repoURL: https://github.com/cyberslot/private-gke.git
     targetRevision: HEAD
-    helm:
-      parameters:
-        - name: installCRDs
-          value: 'true'
   destination:
-    namespace: nginx-gateway
+    # namespace: gateway-system
     name: in-cluster
   syncPolicy:
     automated:
