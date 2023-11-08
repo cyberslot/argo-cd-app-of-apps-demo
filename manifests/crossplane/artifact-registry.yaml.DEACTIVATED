@@ -11,4 +11,4 @@ spec:
     location: EU
   writeConnectionSecretToRef:
     name: example-container-registry-secret
-    namespace: crossplane-test
+    namespace: crossplane-system
