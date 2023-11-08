@@ -1,0 +1,356 @@
+## GKE Service Account
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ServiceAccount
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudplatform/v1beta1/serviceaccountiammember
+  labels:
+    testing.upbound.io/example-name: gke-sa
+  name: gke-sa
+spec:
+  forProvider:
+    displayName: gke-sa 
+    description: Service Account for GKE Cluster
+# ---
+# apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+# kind: ServiceAccountKey
+# metadata:
+#   annotations:
+#     meta.upbound.io/example-id: cloudplatform/v1beta1/serviceaccountkey
+#   labels:
+#     testing.upbound.io/example-name: gke-sa-key
+#   name: gke-sa-key
+# spec:
+#   forProvider:
+#     publicKeyType: TYPE_X509_PEM_FILE
+#     serviceAccountIdSelector:
+#       matchLabels:
+#         testing.upbound.io/example-name: gke-sa
+# ---
+# apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+# kind: ServiceAccountIAMMember
+# metadata:
+#   annotations:
+#     meta.upbound.io/example-id: cloudplatform/v1beta1/serviceaccountiammember
+#   labels:
+#     testing.upbound.io/example-name: gke-sa-member
+#   name: gke-sa-member
+# spec:
+#   forProvider:
+#     member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+#     role: "roles/iam.serviceAccountAdmin"
+#     serviceAccountIdSelector:
+#       matchLabels:
+#         testing.upbound.io/example-name: gke-sa
+
+---
+
+## GKE SA Role Bindings
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: gkesa-stackdriver-resourcemetadata-writer
+  name: gkesa-stackdriver-resourcemetadata-writer
+spec:
+  forProvider:
+    member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+    role: "roles/stackdriver.resourceMetadata.writer"
+    project: web-project-init
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: gkesa-monitoring-viewer
+  name: gkesa-monitoring-viewer
+spec:
+  forProvider:
+    member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+    role: "roles/monitoring.viewer"
+    project: web-project-init
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: gkesa-monitoring-metricwriter
+  name: gkesa-monitoring-metricwriter
+spec:
+  forProvider:
+    member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+    role: "roles/monitoring.metricWriter"
+    project: web-project-init
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: gkesa-autoscaling-metricswriter
+  name: gkesa-autoscaling-metricswriter
+spec:
+  forProvider:
+    member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+    role: "roles/autoscaling.metricsWriter"
+    project: web-project-init
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: gkesa-logging-logwriter
+  name: gkesa-logging-logwriter
+spec:
+  forProvider:
+    member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+    role: "roles/logging.logWriter"
+    project: web-project-init
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: gkesa-iam-workloadidentitypooladmin
+  name: gkesa-iam-workloadidentitypooladmin
+spec:
+  forProvider:
+    member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+    role: "roles/iam.workloadIdentityPoolAdmin"
+    project: web-project-init
+---
+## Used for Workload Identity [Config Connector part includes ProjectIAMMember|roles/owner and ServiceAccountIAMMember|roles/iam.workloadIdentityUser]
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: gkesa-spanner-viewer
+  name: gkesa-spanner-viewer
+spec:
+  forProvider:
+    member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+    role: "roles/spanner.viewer"
+    project: web-project-init
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: gkesa-owner
+  name: gkesa-owner
+spec:
+  forProvider:
+    member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+    role: "roles/owner"
+    project: web-project-init
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ServiceAccountIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudplatform/v1beta1/serviceaccountiammember
+  labels:
+    testing.upbound.io/example-name: gkesa-iam-serviceaccountadmin
+  name: gkesa-iam-serviceaccountadmin
+spec:
+  forProvider:
+    member: serviceAccount:web-project-init.svc.id.goog[default/default]
+    role: "roles/iam.serviceAccountAdmin"
+    serviceAccountIdSelector:
+      matchLabels:
+        testing.upbound.io/example-name: gke-sa
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ServiceAccountIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudplatform/v1beta1/serviceaccountiammember
+  labels:
+    testing.upbound.io/example-name: gkesa-iam-workloadidentityuser-cnrm-ctrl
+  name: gkesa-iam-workloadidentityuser-cnrm-ctrl
+spec:
+  forProvider:
+    member: serviceAccount:web-project-init.svc.id.goog[cnrm-system/cnrm-controller-manager]
+    role: "roles/iam.workloadIdentityUser"
+    serviceAccountIdSelector:
+      matchLabels:
+        testing.upbound.io/example-name: gke-sa
+---
+## Used for Connect Gateway/ArgoCD
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: gkesa-gkehub-gatewayadmin
+  name: gkesa-gkehub-gatewayadmin
+spec:
+  forProvider:
+    member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+    role: "roles/gkehub.gatewayAdmin"
+    project: web-project-init
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: gkesa-containeradmin
+  name: gkesa-containeradmin
+spec:
+  forProvider:
+    member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+    role: "roles/container.admin"
+    project: web-project-init
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ServiceAccountIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudplatform/v1beta1/serviceaccountiammember
+  labels:
+    testing.upbound.io/example-name: gkesa-iam-workloadidentityuser-argocdsrv
+  name: gkesa-iam-workloadidentityuser-argocdsrv
+spec:
+  forProvider:
+    member: serviceAccount:web-project-init.svc.id.goog[argocd/argocd-server]
+    role: "roles/iam.workloadIdentityUser"
+    serviceAccountIdSelector:
+      matchLabels:
+        testing.upbound.io/example-name: gke-sa
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ServiceAccountIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudplatform/v1beta1/serviceaccountiammember
+  labels:
+    testing.upbound.io/example-name: gkesa-iam-workloadidentityuser-argocdappctrl
+  name: gkesa-iam-workloadidentityuser-argocdappctrl
+spec:
+  forProvider:
+    member: serviceAccount:web-project-init.svc.id.goog[argocd/argocd-application-controller]
+    role: "roles/iam.workloadIdentityUser"
+    serviceAccountIdSelector:
+      matchLabels:
+        testing.upbound.io/example-name: gke-sa
+---
+## Used for Cloud NAT
+apiVersion: iap.gcp.upbound.io/v1beta1
+kind: TunnelIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: iap/v1beta1/tunneliammember
+  labels:
+    testing.upbound.io/example-name: tunnel_iam_member
+  name: tunnel-iam-member
+spec:
+  forProvider:
+    member: serviceAccount:gke-sa@web-project-init.iam.gserviceaccount.com
+    role: "roles/iap.tunnelResourceAccessor" # IAP-secured Tunnel User
+---
+## Used for multi-cluster Services in fleet
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: gkesa-compute-networkviewer-gkemcsimp
+  name: gkesa-compute-networkviewer-gkemcsimp
+spec:
+  forProvider:
+    member: serviceAccount:web-project-init.svc.id.goog[gke-mcs/gke-mcs-importer]
+    role: "roles/compute.networkViewer"
+    project: web-project-init
+---
+## Used for multi-cluster Gateway controller in fleet
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: mcs-containeradmin-multiclusteringress
+  name: mcs-containeradmin-multiclusteringress
+spec:
+  forProvider:
+    member: serviceAccount:service-85861670589@gcp-sa-multiclusteringress.iam.gserviceaccount.com
+    role: "roles/container.admin"
+    project: web-project-init
+---
+## Used for owner gcp account (crossplane-sa)
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: crossplanesa-editor
+  name: crossplanesa-editor
+spec:
+  forProvider:
+    member: serviceAccount:crossplane-sa@web-project-init.iam.gserviceaccount.com
+    project: web-project-init
+    role: roles/editor
+---
+apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+  annotations:
+    meta.upbound.io/example-id: logging/v1beta1/projectsink
+  labels:
+    testing.upbound.io/example-name: crossplanesa-owner
+  name: crossplanesa-owner
+spec:
+  forProvider:
+    member: serviceAccount:crossplane-sa@web-project-init.iam.gserviceaccount.com
+    project: web-project-init
+    role: roles/owner
+---
+## Workload Identity Pool
+apiVersion: iam.gcp.upbound.io/v1beta1
+kind: WorkloadIdentityPool
+metadata:
+  annotations:
+    meta.upbound.io/example-id: iam/v1beta1/workloadidentitypool
+  labels:
+    testing.upbound.io/example-name: workload-identitypool
+  name: workload-identitypool
+spec:
+  forProvider:
+    displayName: WLI pool
+    description: GKE Workload Identity Pool
+---
+apiVersion: iam.gcp.upbound.io/v1beta1
+kind: WorkloadIdentityPoolProvider
+metadata:
+  annotations:
+    meta.upbound.io/example-id: iam/v1beta1/workloadidentitypoolprovider
+  labels:
+    testing.upbound.io/example-name: identity-pool-provider
+  name: identity-pool-provider
+spec:
+  forProvider:
+    aws:
+    - accountId: "932826417540"
+    workloadIdentityPoolIdSelector:
+      matchLabels:
+        testing.upbound.io/example-name: workload-identitypool

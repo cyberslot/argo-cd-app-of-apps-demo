@@ -1,0 +1,311 @@
+apiVersion: storage.gcp.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  annotations:
+    meta.upbound.io/example-id: storage/v1beta1/bucket
+  labels:
+    testing.upbound.io/example-name: bucket_bastion_image
+  name: bucket-bastion-image
+spec:
+  forProvider:
+    cors:
+    - maxAgeSeconds: 3600
+      method:
+      - GET
+      - HEAD
+      - PUT
+      - POST
+      - DELETE
+      origin:
+      - http://image-store.com
+      responseHeader:
+      - '*'
+    forceDestroy: true
+    location: EU
+    uniformBucketLevelAccess: true
+    website:
+    - mainPageSuffix: index.html
+      notFoundPage: 404.html
+---
+# apiVersion: compute.gcp.upbound.io/v1beta1
+# kind: Disk
+# metadata:
+#   annotations:
+#     meta.upbound.io/example-id: compute/v1beta1/disk
+#   labels:
+#     testing.upbound.io/example-name: bastion_disk_ubuntu2304
+#   name: bastion-disk-ubuntu2304
+# spec:
+#   forProvider:
+#     description: Persistent disk for bastion instances.
+#     image: projects/web-project-init/global/images/bastion-storage-image-ubuntu2304
+#     ## Other source option - snapshot
+#     # snapshot: projects/web-project-init/global/snapshots/bastion-snapshot-ubuntu2304
+#     labels:
+#       environment: dev
+#     physicalBlockSizeBytes: 4096
+#     project: web-project-init
+#     size: 10
+#     type: pd-balanced
+#     zone: europe-west3-a
+---
+apiVersion: compute.gcp.upbound.io/v1beta1
+kind: Image
+metadata:
+  annotations:
+    meta.upbound.io/example-id: compute/v1beta1/image
+  labels:
+    testing.upbound.io/example-name: bastion_storage_image_ubuntu2304
+  name: bastion-storage-image-ubuntu2304
+spec:
+  forProvider:
+    guestOsFeatures:
+      - type: UEFI_COMPATIBLE
+    project: web-project-init
+    rawDisk:
+    ## Storage image shoud be exported in already created bucket "bucket-bastion-image" (bucket-bastionimage.yaml) via gcloud CLI:
+    ## gcloud compute images export \
+    ##   --destination-uri gs://bucket-bastion-image/bastion-storage-image-ubuntu2304.tar.gz \
+    ##   --image bastion-storage-image-ubuntu2304 \
+    ##   --project web-project-init \
+    ##   --compute-service-account crossplane-sa@web-project-init.iam.gserviceaccount.com
+    ## During image export (using daisy) another bucket, named "web-project-init-daisy-bkt-us" is created and tar.gz format of the image is stored in it. URI link, in "- source:" field below, can be obtained from GCP console: 
+    ## Cloud Storage > Buckets > web-project-init-daisy-bkt-us > daisy-image-export-20230928-06:02:10-mz569/ > outs > image-export-export-disk.tar.gz > Authenticated URL
+      - source: https://storage.cloud.google.com/web-project-init-daisy-bkt-us/daisy-image-export-20230928-06%3A02%3A10-mz569/outs/image-export-export-disk.tar.gz
+---
+## Brand new VM instance from scratch
+# apiVersion: compute.gcp.upbound.io/v1beta1
+# kind: Instance
+# metadata:
+#   annotations:
+#     meta.upbound.io/example-id: compute/v1beta1/instance
+#   labels:
+#     testing.upbound.io/example-name: bastion_instance
+#   name: bastion-instance
+# spec:
+#   forProvider:
+#     bootDisk:
+#     - initializeParams:
+#       - image: ubuntu-os-cloud/ubuntu-minimal-2304-amd64
+#     machineType: e2-micro
+#     metadata:
+#       environment: dev
+#     networkInterface:
+#       - accessConfig:
+#           - networkTier: PREMIUM
+#         subnetwork: "projects/web-project-init/regions/europe-west3/subnetworks/subnet-eu-west-192"
+#         stackType: IPV4_ONLY
+#     serviceAccount:
+#     - email: 85861670589-compute@developer.gserviceaccount.com
+#       scopes:
+#         - https://www.googleapis.com/auth/devstorage.read_only
+#         - https://www.googleapis.com/auth/logging.write
+#         - https://www.googleapis.com/auth/monitoring.write
+#         - https://www.googleapis.com/auth/servicecontrol
+#         - https://www.googleapis.com/auth/service.management.readonly
+#         - https://www.googleapis.com/auth/trace.append
+#     tags: 
+#     - bastion
+#     - instance
+#     zone: europe-west3-a
+---
+## Bastion VM instance from storage image (configured)
+# apiVersion: compute.gcp.upbound.io/v1beta1
+# kind: Instance
+# metadata:
+#   annotations:
+#     meta.upbound.io/example-id: compute/v1beta1/instance
+#   labels:
+#     testing.upbound.io/example-name: bastion_instance_from_image
+#   name: bastion-instance-ubuntu2304
+# spec:
+#   forProvider:
+#     bootDisk:
+#     - initializeParams:
+#       - image: projects/web-project-init/global/images/bastion-storage-image-ubuntu2304
+#     machineType: e2-micro
+#     metadata:
+#       environment: dev
+#     networkInterface:
+#       - accessConfig:
+#           - networkTier: PREMIUM
+#             # natIp: NO_ADDRESS # Not supported!
+#         subnetwork: "projects/web-project-init/regions/europe-west3/subnetworks/subnet-eu-west-192"
+#         stackType: IPV4_ONLY
+#     project: web-project-init
+#     reservationAffinity:
+#       - type: ANY_RESERVATION
+#     scheduling:
+#       - automaticRestart: true
+#         onHostMaintenance: MIGRATE
+#         provisioningModel: STANDARD
+#     serviceAccount:
+#     - email: 85861670589-compute@developer.gserviceaccount.com
+#       scopes:
+#         - https://www.googleapis.com/auth/devstorage.read_only
+#         - https://www.googleapis.com/auth/logging.write
+#         - https://www.googleapis.com/auth/monitoring.write
+#         - https://www.googleapis.com/auth/servicecontrol
+#         - https://www.googleapis.com/auth/service.management.readonly
+#         - https://www.googleapis.com/auth/trace.append
+#     shieldedInstanceConfig:
+#       - enableIntegrityMonitoring: true
+#         enableSecureBoot: false
+#         enableVtpm: true
+#     tags: 
+#     - bastion
+#     - instance
+#     - http-server
+#     - https-server
+#     zone: europe-west3-a
+---
+apiVersion: compute.gcp.upbound.io/v1beta1
+kind: InstanceTemplate
+metadata:
+  annotations:
+    meta.upbound.io/example-id: compute/v1beta1/instancetemplate
+  labels:
+    testing.upbound.io/example-name: bastion_instance_ubuntu2304_template
+  name: bastion-instance-ubuntu2304-template
+spec:
+  forProvider:
+    canIpForward: false
+    description: This template is used to create bastion instances.
+    disk:
+      - autoDelete: false
+        boot: true
+        deviceName: bastion-template
+        diskSizeGb: 20
+        diskType: pd-balanced
+        mode: READ_WRITE
+        sourceImage: projects/web-project-init/global/images/bastion-storage-image-ubuntu2304
+    instanceDescription: Instance designated to be used as bastion.
+    labels:
+      environment: dev
+    machineType: e2-micro
+    metadata:
+      environment: dev
+    name: bastion-instance-template
+    networkInterface:
+      - subnetwork: "projects/web-project-init/regions/europe-west3/subnetworks/subnet-eu-west3-192"
+        stackType: IPV4_ONLY
+    project: web-project-init
+    reservationAffinity:
+      - type: ANY_RESERVATION
+    scheduling:
+      - automaticRestart: true
+        onHostMaintenance: MIGRATE
+        provisioningModel: STANDARD
+    serviceAccount: 
+      - email: 85861670589-compute@developer.gserviceaccount.com
+        scopes:
+          - https://www.googleapis.com/auth/devstorage.read_only
+          - https://www.googleapis.com/auth/logging.write
+          - https://www.googleapis.com/auth/monitoring.write
+          - https://www.googleapis.com/auth/servicecontrol
+          - https://www.googleapis.com/auth/service.management.readonly
+          - https://www.googleapis.com/auth/trace.append
+    shieldedInstanceConfig:
+      - enableIntegrityMonitoring: true
+        enableSecureBoot: false
+        enableVtpm: true
+    tags:
+      - instance
+      - bastion
+      - http-server
+      - https-server
+---
+## Second template, used for bastion for private gke in europe-central2
+# apiVersion: compute.gcp.upbound.io/v1beta1
+# kind: InstanceTemplate
+# metadata:
+#   annotations:
+#     meta.upbound.io/example-id: compute/v1beta1/instancetemplate
+#   labels:
+#     testing.upbound.io/example-name: bastion_instance_ubuntu2304_eu_central2_template
+#   name: bastion-instance-ubuntu2304-eu-central2-template
+# spec:
+#   forProvider:
+#     canIpForward: false
+#     description: This template is used to create bastion instances.
+#     disk:
+#       - autoDelete: false
+#         boot: true
+#         deviceName: bastion-template
+#         diskSizeGb: 20
+#         diskType: pd-balanced
+#         mode: READ_WRITE
+#         sourceImage: projects/web-project-init/global/images/bastion-storage-image-ubuntu2304
+#     instanceDescription: Instance designated to be used as bastion.
+#     labels:
+#       environment: dev
+#     machineType: e2-micro
+#     metadata:
+#       environment: dev
+#     name: bastion-instance-ubuntu2304-eu-central2-template
+#     networkInterface:
+#       - subnetwork: "projects/web-project-init/regions/europe-central2/subnetworks/subnet-eu-central2-192"
+#         stackType: IPV4_ONLY
+#     project: web-project-init
+#     reservationAffinity:
+#       - type: ANY_RESERVATION
+#     scheduling:
+#       - automaticRestart: true
+#         onHostMaintenance: MIGRATE
+#         provisioningModel: STANDARD
+#     serviceAccount: 
+#       - email: 85861670589-compute@developer.gserviceaccount.com
+#         scopes:
+#           - https://www.googleapis.com/auth/devstorage.read_only
+#           - https://www.googleapis.com/auth/logging.write
+#           - https://www.googleapis.com/auth/monitoring.write
+#           - https://www.googleapis.com/auth/servicecontrol
+#           - https://www.googleapis.com/auth/service.management.readonly
+#           - https://www.googleapis.com/auth/trace.append
+#     shieldedInstanceConfig:
+#       - enableIntegrityMonitoring: true
+#         enableSecureBoot: false
+#         enableVtpm: true
+#     tags:
+#       - instance
+#       - bastion
+#       - http-server
+#       - https-server
+---
+## Commented here because it's included in first-private-gke.yaml & second-private-gke.yaml
+# apiVersion: compute.gcp.upbound.io/v1beta1
+# kind: InstanceFromTemplate
+# metadata:
+#   annotations:
+#     meta.upbound.io/example-id: compute/v1beta1/instancefromtemplate
+#   labels:
+#     testing.upbound.io/example-name: bastion_instance_ubuntu2304_from_template
+#   name: bastion-instance-ubuntu2304-from-template
+# spec:
+#   forProvider:
+#     name: bastion-instance-ubuntu2304
+#     sourceInstanceTemplateSelector:
+#       matchLabels:
+#         testing.upbound.io/example-name: bastion_instance_ubuntu2304_template
+#     zone: europe-west3-a
+#     # zone: europe-central2-a
+---
+# apiVersion: compute.gcp.upbound.io/v1beta1
+# kind: Snapshot
+# metadata:
+#   annotations:
+#     meta.upbound.io/example-id: compute/v1beta1/snapshot
+#   labels:
+#     testing.upbound.io/example-name: bastion_snapshot_ubuntu2304
+#   name: bastion-snapshot-ubuntu2304
+# spec:
+#   forProvider:
+#     # labels:
+#     #   my_label: value
+#     project: web-project-init
+#     sourceDiskSelector:
+#       matchLabels:
+#         testing.upbound.io/example-name: bastion_disk_ubuntu2304
+#     storageLocations:
+#       - europe-west3
+#     zone: europe-west3-a
